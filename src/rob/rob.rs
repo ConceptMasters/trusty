@@ -1,4 +1,3 @@
-pub mod namespace;
 pub mod rbac;
 pub mod role;
 pub mod tenant;

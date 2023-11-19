@@ -1,15 +1,14 @@
 use super::*;
 use crate::store::Store;
-use platform_errors::return_error;
-use race::AccessControlEngine;
-use rob::{token::TokenContext, user::UserQuery};
+use crate::errors::return_error;
+use crate::race::AccessControlEngine;
+use crate::rob::user::UserQuery;
 use std::sync::Arc;
 use warp::{http::Method, Filter, Rejection};
 
 pub fn router(
     store: Arc<dyn Store>,
     race_core: Arc<AccessControlEngine>,
-    with_jwt: impl Filter<Extract = (TokenContext,), Error = Rejection> + Clone + Send + Sync + 'static,
 ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
     let with_store = warp::any().map(move || store.clone());
     let with_access_control_core_access = warp::any().map(move || race_core.clone());
@@ -19,7 +18,6 @@ pub fn router(
             warp::$method()
                 .and($path)
                 .and(warp::path::end())
-                .and(with_jwt.clone())
                 .and(with_store.clone())
                 .and(warp::body::json())
                 .and_then($function_name)
@@ -31,7 +29,6 @@ pub fn router(
             warp::$method()
                 .and($path)
                 .and(warp::path::end())
-                .and(with_jwt.clone())
                 .and(with_store.clone())
                 .and_then($function_name)
         };
@@ -43,9 +40,6 @@ pub fn router(
             "User-Agent",
             "Content-Type",
             "Authorization",
-            "user-id",
-            "tenant-id",
-            "namespace-id",
         ])
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE, Method::PATCH]);
 
@@ -57,43 +51,10 @@ pub fn router(
     let is_allowed_route = warp::post()
         .and(warp::path!("v1" / "isallowed"))
         .and(warp::path::end())
-        .and(with_jwt.clone())
         .and(with_store.clone())
         .and(with_access_control_core_access.clone())
         .and(warp::body::json())
         .and_then(is_allowed);
-
-    // namespaces
-    let add_namespace_route =
-        route_with_body!(post, add_namespace, warp::path!("v1" / "namespaces"));
-    let get_namespace_route = route_without_body!(
-        get,
-        get_namespace,
-        warp::path!("v1" / "namespaces" / String)
-    );
-    let get_namespaces_route =
-        route_without_body!(get, get_namespaces, warp::path!("v1" / "namespaces"));
-    let delete_namespace_route = route_without_body!(
-        delete,
-        delete_namespace,
-        warp::path!("v1" / "namespaces" / String)
-    );
-
-    // products
-    let add_product_route = route_with_body!(post, add_product, warp::path!("v1" / "products"));
-    let update_product_route = route_with_body!(
-        patch,
-        update_product,
-        warp::path!("v1" / "products" / String)
-    );
-    let get_product_route =
-        route_without_body!(get, get_product, warp::path!("v1" / "products" / String));
-    let get_products_route = route_without_body!(get, get_products, warp::path!("v1" / "products"));
-    let delete_product_route = route_without_body!(
-        delete,
-        delete_product,
-        warp::path!("v1" / "products" / String)
-    );
 
     // tenants
     let add_tenant_route = route_with_body!(post, add_tenant, warp::path!("v1" / "tenants"));
@@ -111,33 +72,6 @@ pub fn router(
         delete,
         delete_tenant,
         warp::path!("v1" / "tenants" / String)
-    );
-
-    // organization profiles
-    let add_organization_profile_route = route_with_body!(
-        post,
-        add_organization_profile,
-        warp::path!("v1" / "organization-profiles")
-    );
-    let update_organization_profile_route = route_with_body!(
-        patch,
-        update_organization_profile,
-        warp::path!("v1" / "organization-profiles" / String)
-    );
-    let get_organization_profile_route = route_without_body!(
-        get,
-        get_organization_profile,
-        warp::path!("v1" / "organization-profiles" / String)
-    );
-    let get_organization_profiles_route = route_without_body!(
-        get,
-        get_organization_profiles,
-        warp::path!("v1" / "organization-profiles")
-    );
-    let delete_organization_profile_route = route_without_body!(
-        delete,
-        delete_organization_profile,
-        warp::path!("v1" / "organization-profiles" / String)
     );
 
     // users
@@ -173,17 +107,6 @@ pub fn router(
 
     healthz_route
         .or(is_allowed_route)
-        // namespaces
-        .or(add_namespace_route)
-        .or(get_namespace_route)
-        .or(get_namespaces_route)
-        .or(delete_namespace_route)
-        // products
-        .or(add_product_route)
-        .or(update_product_route)
-        .or(get_product_route)
-        .or(get_products_route)
-        .or(delete_product_route)
         // tenants
         .or(add_tenant_route)
         .or(update_tenant_route)
@@ -191,12 +114,6 @@ pub fn router(
         .or(get_tenant_route)
         .or(get_tenants_route)
         .or(delete_tenant_route)
-        // organization profiles
-        .or(add_organization_profile_route)
-        .or(update_organization_profile_route)
-        .or(get_organization_profile_route)
-        .or(get_organization_profiles_route)
-        .or(delete_organization_profile_route)
         // users
         .or(add_user_route)
         .or(update_user_route)
