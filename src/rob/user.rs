@@ -1,13 +1,11 @@
-use crate::role::Role;
-use crate::tenant::PopulatedTenant;
-use crate::timestamps::*;
-use crate::utils::*;
-use crate::ValidateInputRules;
+use crate::rob::role::Role;
+use crate::rob::tenant::PopulatedTenant;
+use crate::rob::timestamps::*;
+use crate::rob::utils::*;
+use crate::rob::ValidateInputRules;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use u_turn::URN;
-use u_turn_macro::URN;
 use ulid::Ulid;
 use validator::{Validate, ValidationErrors};
 
@@ -30,12 +28,9 @@ impl UserExternalProvider {
     // There should be no update on UserExternalProvider. Just create a new object.
 }
 
-#[derive(URN, Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
-    #[object_id]
     pub id: String,
-    #[namespace_id]
-    pub namespace_id: String,
     pub email: String,
     pub external_provider: UserExternalProvider,
     pub first_name: String,
@@ -50,7 +45,6 @@ pub struct User {
 
 impl User {
     pub fn new(
-        namespace_id: String,
         email: String,
         external_provider: UserExternalProvider,
         first_name: String,
@@ -63,7 +57,6 @@ impl User {
     ) -> Self {
         User {
             id: Ulid::new().to_string(),
-            namespace_id,
             email,
             external_provider,
             first_name,
@@ -80,7 +73,6 @@ impl User {
     pub fn new_from_obj(new_user: &NewUser) -> Self {
         User {
             id: Ulid::new().to_string(),
-            namespace_id: new_user.namespace_id.clone(),
             email: new_user.email.clone(),
             external_provider: new_user.external_provider.clone(),
             first_name: new_user.first_name.clone(),
@@ -123,7 +115,6 @@ pub struct UserQuery {
 
 #[derive(Deserialize, Debug, Clone, Validate)]
 pub struct NewUser {
-    pub namespace_id: String,
     #[validate(email)]
     pub email: String,
     #[validate]

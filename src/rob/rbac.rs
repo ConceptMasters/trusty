@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 pub struct IsAllowedRequest {
     pub external_user_id: String,
     pub tenant: String,
-    pub product: String,
     pub resource: String,
     pub action: String,
 }
