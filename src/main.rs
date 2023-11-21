@@ -1,5 +1,8 @@
 #![recursion_limit = "256"]
 
+#[macro_use]
+extern crate lazy_static;
+
 mod errors;
 mod race;
 mod rob;
@@ -53,8 +56,6 @@ impl Config {
             server_addr,
             mongo_uri,
             mongo_db_name,
-            audience,
-            domain,
         })
     }
 }

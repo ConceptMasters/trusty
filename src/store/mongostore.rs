@@ -1,8 +1,3 @@
-use crate::store::Store;
-use async_trait::async_trait;
-use futures::stream::TryStreamExt;
-use log::{error, info};
-use mongodb::{bson::doc, Client, Collection, Database};
 use crate::errors::Error;
 use crate::rob::{
     namespace::Namespace,
@@ -12,6 +7,11 @@ use crate::rob::{
     tenant::Tenant,
     user::{User, UserInfo, UserQuery},
 };
+use crate::store::Store;
+use async_trait::async_trait;
+use futures::stream::TryStreamExt;
+use log::{error, info};
+use mongodb::{bson::doc, Client, Collection, Database};
 
 async fn mongo_result<T>(
     result: Result<Option<T>, mongodb::error::Error>,

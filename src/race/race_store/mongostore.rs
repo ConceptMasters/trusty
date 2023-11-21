@@ -1,11 +1,11 @@
-use crate::store::Store;
+use crate::errors::Error;
+use crate::race::race_store::Store;
+use crate::rob::{rbac::IsAllowedRequest, role::Role, user::User};
 use async_trait::async_trait;
 use futures::stream::TryStreamExt;
 use log::{debug, error};
 use mongodb::bson::doc;
 use mongodb::{Client, Collection, Database};
-use platform_errors::Error;
-use rob::{rbac::IsAllowedRequest, role::Role, user::User};
 
 #[derive(Debug, Clone)]
 pub struct MongoStore {
@@ -77,16 +77,13 @@ impl Store for MongoStore {
         &self,
         role_ids: Vec<String>,
         access_control_request: &IsAllowedRequest,
-        namespace: String,
     ) -> Result<Vec<Role>, Error> {
         debug!(
             "Getting roles matching IsAllowedRequest among role ids: {:?}",
             role_ids.clone()
         );
         let filter = doc! {
-            "namespace_id": namespace.clone(),
             "permissions": format!("{}:{}", access_control_request.resource, access_control_request.action),
-            "product_id": access_control_request.product.clone(),
             "tenant_id": access_control_request.tenant.clone(),
             /*
             "$or": [

@@ -1,10 +1,10 @@
-use async_trait::async_trait;
 use crate::errors::Error;
 use crate::rob::{
     role::Role,
     tenant::Tenant,
     user::{User, UserInfo, UserQuery},
 };
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait Store: Send + Sync {

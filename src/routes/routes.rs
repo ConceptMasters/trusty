@@ -1,8 +1,8 @@
 use super::*;
-use crate::store::Store;
 use crate::errors::return_error;
 use crate::race::AccessControlEngine;
 use crate::rob::user::UserQuery;
+use crate::store::Store;
 use std::sync::Arc;
 use warp::{http::Method, Filter, Rejection};
 
@@ -36,11 +36,7 @@ pub fn router(
 
     let cors = warp::cors()
         .allow_any_origin()
-        .allow_headers(vec![
-            "User-Agent",
-            "Content-Type",
-            "Authorization",
-        ])
+        .allow_headers(vec!["User-Agent", "Content-Type", "Authorization"])
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE, Method::PATCH]);
 
     let healthz_route = warp::get()
@@ -87,7 +83,6 @@ pub fn router(
     let get_users_route = warp::get()
         .and(warp::path!("v1" / "users"))
         .and(warp::path::end())
-        .and(with_jwt.clone())
         .and(with_store.clone())
         .and(warp::query::<UserQuery>())
         .and_then(get_users);

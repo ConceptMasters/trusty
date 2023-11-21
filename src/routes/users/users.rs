@@ -1,10 +1,10 @@
-use crate::store::Store;
-use crate::validation::ValidateDataIntegrity;
 use crate::errors::Error;
 use crate::rob::{
     user::{NewUser, UpdateUser, User, UserQuery},
     ValidateInputRules,
 };
+use crate::store::Store;
+use crate::validation::ValidateDataIntegrity;
 use std::sync::Arc;
 use warp::{
     http::StatusCode,

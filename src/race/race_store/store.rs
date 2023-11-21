@@ -1,7 +1,7 @@
-use crate::store::MongoStore;
+use crate::errors::Error;
+use crate::race::race_store::MongoStore;
+use crate::rob::{rbac::IsAllowedRequest, role::Role};
 use async_trait::async_trait;
-use platform_errors::Error;
-use rob::{rbac::IsAllowedRequest, role::Role};
 
 pub enum StoreType {
     Mongo(MongoStore),
@@ -14,6 +14,5 @@ pub trait Store: Send + Sync {
         &self,
         role_ids: Vec<String>,
         access_control_request: &IsAllowedRequest,
-        namespace: String,
     ) -> Result<Vec<Role>, Error>;
 }

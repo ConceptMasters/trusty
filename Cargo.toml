@@ -16,7 +16,10 @@ mongodb = "2.7.0"
 futures = "0.3.28"
 ulid = "1.1.0"
 env_logger = "0.10.0"
-validator = "0.16.1"
+validator = { version = "0.16.1", features = ["derive"] }
+lazy_static = "1.4.0"
+chrono = "0.4.31"
+regex = "1.10.2"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

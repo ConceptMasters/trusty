@@ -1,8 +1,6 @@
-use crate::store::Store;
 use crate::race::AccessControlEngine;
-use crate::rob::{
-    rbac::{IsAllowedRequest, IsAllowedResult},
-};
+use crate::rob::rbac::{IsAllowedRequest, IsAllowedResult};
+use crate::store::Store;
 use std::sync::Arc;
 use warp::reply::json;
 
@@ -11,8 +9,6 @@ pub async fn is_allowed(
     access_control: Arc<AccessControlEngine>,
     is_allowed_request: IsAllowedRequest,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let result: IsAllowedResult = access_control
-        .is_allowed(&is_allowed_request)
-        .await?;
+    let result: IsAllowedResult = access_control.is_allowed(&is_allowed_request).await?;
     Ok(json(&result))
 }

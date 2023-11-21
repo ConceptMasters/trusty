@@ -1,4 +1,3 @@
-use crate::rob::product::Product;
 use crate::rob::timestamps::*;
 use crate::rob::utils::*;
 use crate::rob::ValidateInputRules;
@@ -17,11 +16,7 @@ pub struct Tenant {
 }
 
 impl Tenant {
-    pub fn new(
-        name: String,
-        description: String,
-        metadata: Option<Value>,
-    ) -> Self {
+    pub fn new(name: String, description: String, metadata: Option<Value>) -> Self {
         Tenant {
             id: Ulid::new().to_string(),
             name,

@@ -1,11 +1,11 @@
-use crate::store::Store;
-use crate::validation::{ValidateDataIntegrity, ValidateDataIntegrityWithNamespace};
-use log::debug;
 use crate::errors::Error;
 use crate::rob::{
     role::{NewRole, Role, UpdateRole},
     ValidateInputRules,
 };
+use crate::store::Store;
+use crate::validation::{ValidateDataIntegrity, ValidateDataIntegrityWithNamespace};
+use log::debug;
 use std::sync::Arc;
 use warp::{
     http::StatusCode,
@@ -36,9 +36,7 @@ pub async fn update_role(
     update_role
         .validate_input_rules()
         .map_err(|e| Error::ValidationError(e.to_string()))?;
-    update_role
-        .validate_data_integrity(store.clone())
-        .await?;
+    update_role.validate_data_integrity(store.clone()).await?;
     let mut role = store.get_role(id.clone()).await?;
     role.apply_update(&update_role);
     store.update_role(id, &role).await?;
@@ -53,9 +51,7 @@ pub async fn get_role(
     Ok(json(&role))
 }
 
-pub async fn get_roles(
-    store: Arc<dyn Store>,
-) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn get_roles(store: Arc<dyn Store>) -> Result<impl warp::Reply, warp::Rejection> {
     let roles = store.get_roles().await?;
     Ok(json(&roles))
 }

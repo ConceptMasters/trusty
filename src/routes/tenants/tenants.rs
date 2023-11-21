@@ -1,10 +1,10 @@
-use crate::store::Store;
-use crate::validation::{ValidateDataIntegrity, ValidateDataIntegrityWithNamespace};
 use crate::errors::Error;
 use crate::rob::{
     tenant::{NewTenant, Tenant, UpdateTenant},
     ValidateInputRules,
 };
+use crate::store::Store;
+use crate::validation::{ValidateDataIntegrity, ValidateDataIntegrityWithNamespace};
 use std::sync::Arc;
 use warp::{
     http::StatusCode,
@@ -32,9 +32,7 @@ pub async fn update_tenant(
     update_tenant
         .validate_input_rules()
         .map_err(|e| Error::ValidationError(e.to_string()))?;
-    update_tenant
-        .validate_data_integrity(store.clone())
-        .await?;
+    update_tenant.validate_data_integrity(store.clone()).await?;
     let mut tenant = store.get_tenant(id.clone()).await?;
     tenant.apply_update(&update_tenant);
     store.update_tenant(id, &tenant).await?;
@@ -68,9 +66,7 @@ pub async fn get_tenant(
     Ok(json(&tenant))
 }
 
-pub async fn get_tenants(
-    store: Arc<dyn Store>,
-) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn get_tenants(store: Arc<dyn Store>) -> Result<impl warp::Reply, warp::Rejection> {
     let tenants = store.get_tenants().await?;
     Ok(json(&tenants))
 }

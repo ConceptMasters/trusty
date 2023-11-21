@@ -1,8 +1,6 @@
-mod store;
-use crate::store::{MongoStore, StoreType};
-use platform_errors::Error;
-use rob::rbac::{IsAllowedRequest, IsAllowedResult};
-use store::Store;
+use crate::errors::Error;
+use crate::race::race_store::{MongoStore, StoreType};
+use crate::rob::rbac::{IsAllowedRequest, IsAllowedResult};
 
 pub struct AccessControlEngine {
     #[allow(dead_code)]
@@ -22,7 +20,6 @@ impl AccessControlEngine {
     pub async fn is_allowed(
         &self,
         is_allowed_request: &IsAllowedRequest,
-        namespace: String,
     ) -> Result<IsAllowedResult, Error> {
         match &self.store {
             StoreType::Mongo(store) => {
@@ -30,7 +27,7 @@ impl AccessControlEngine {
                     .get_role_ids_for_user(is_allowed_request.external_user_id.clone())
                     .await?;
                 let matching_roles = store
-                    .get_roles_matching_request(user_role_ids, is_allowed_request, namespace)
+                    .get_roles_matching_request(user_role_ids, is_allowed_request)
                     .await?;
                 Ok(IsAllowedResult {
                     result: !matching_roles.is_empty(),
