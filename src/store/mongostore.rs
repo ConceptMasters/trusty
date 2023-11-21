@@ -3,8 +3,8 @@ use async_trait::async_trait;
 use futures::stream::TryStreamExt;
 use log::{error, info};
 use mongodb::{bson::doc, Client, Collection, Database};
-use platform_errors::Error;
-use rob::{
+use crate::errors::Error;
+use crate::rob::{
     namespace::Namespace,
     organizationprofile::OrganizationProfile,
     product::Product,
